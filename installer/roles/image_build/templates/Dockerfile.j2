@@ -7,10 +7,10 @@ ADD RPM-GPG-KEY-ansible-release /etc/pki/rpm-gpg/RPM-GPG-KEY-ansible-release
 
 
 # add rhscl repo for rh-postgresql-devel
-RUN yum -y install centos-release-scl 
+RUN yum -y install centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 
-RUN yum -y update && yum -y install epel-release && yum -y install https://centos7.iuscommunity.org/ius-release.rpm 
+RUN yum -y update && yum -y install epel-release && yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 
 # sync with tools/docker-compose/Dockerfile
 RUN yum -y install acl \
@@ -71,6 +71,7 @@ RUN chmod +x /tini
 RUN python3 -m ensurepip && pip3 install virtualenv
 RUN pip install supervisor
 
+RUN ln -sf /opt/rh/rh-postgresql10/root/usr/lib64/libpq.so.rh-postgresql10-5 /usr/lib64
 RUN find / -name pg_config
 
 ADD Makefile /tmp/Makefile
@@ -82,7 +83,7 @@ ADD requirements/requirements_ansible.txt \
     requirements/requirements_tower_uninstall.txt \
     requirements/requirements_git.txt \
     /tmp/requirements/
-RUN cd /tmp && VENV_BASE="/var/lib/awx/venv" make requirements
+RUN scl enable rh-postgresql10 """cd /tmp && VENV_BASE="/var/lib/awx/venv" make requirements"""
 
 RUN yum -y remove cyrus-sasl-devel \
   gcc \
